@@ -1,0 +1,163 @@
+<?php
+
+/**
+ * @file
+ */
+
+//error_reporting(E_ALL);
+//ini_set('display_errors', true);
+
+/**
+ * Implementation of hook_menu().
+ */
+function uc_payfast_menu() {
+    
+  $items = array();
+    
+  $items['cart/payfast/complete'] = array(
+    'title' => 'Order complete',
+    'page callback' => 'uc_payfast_complete',
+    'access callback' => 'uc_payfast_completion_access',
+    'type' => MENU_CALLBACK,
+    'file' => 'uc_payfast.pages.inc',
+  );
+  
+  $items['cart/payfast/cancelled'] = array(
+    'title' => 'Order cancelled',
+    'page callback' => 'uc_payfast_cancelled',
+    'access arguments' => array('registered user can complete payfast order'),
+    'type' => MENU_CALLBACK,
+    'file' => 'uc_payfast.pages.inc',
+  );
+  
+  $items['cart/payfast/itn'] = array(
+    'title' => '',
+    'page callback' => 'uc_payfast_itn',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'file' => 'uc_payfast.pages.inc',
+  );
+    
+  return $items;
+}
+
+ function uc_payfast_perm()
+ {
+ 	return array('registered user can complete payfast order');
+ }
+ 
+// Make sure anyone can complete their Payfast orders.
+function uc_payfast_completion_access() {
+  return true;
+}
+
+/**
+ * Implementation of hook_ucga_display().
+ */
+function uc_payfast_ucga_display() {
+  // Tell UC Google Analytics to display the e-commerce JS on the custom
+  // order completion page for this module.
+  if (arg(0) == 'cart' && arg(1) == 'payfast' && arg(2) == 'complete') {
+    return true;
+  }
+}
+
+/**
+ * Implementation of hook_uc_payment_method().
+ */
+function uc_payfast_uc_payment_method() {
+  $methods['payfast'] = array(
+      'id' => 'payfast',
+      'name' => t('Payfast'),
+      'title' => t('Payment via Payfast'),
+      'desc' => t('Payment via Payfast'),
+      'callback' => 'uc_payment_method_payfast',
+      'redirect' => 'uc_payfast_form',
+      'weight' => 1,
+      'checkout' => true,
+      'no_gateway' => true,
+  );
+  return $methods;
+}
+
+// Adds Netcash settings to the payment method settings form.
+function uc_payment_method_payfast($op, &$arg1) {
+  switch ($op) {
+    case 'settings':
+      $form['uc_payfast_merchant_id'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Merchant ID'),
+        '#default_value' => variable_get('uc_payfast_merchant_id', ''),
+        '#required' => true,
+      );
+      $form['uc_payfast_merchant_key'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Merchant Key'),
+        '#default_value' => variable_get('uc_payfast_merchant_key', ''),
+        '#required' => true,
+      );
+      $form['uc_payfast_mode'] = array(
+        '#type' => 'select',
+        '#title' => t('Mode'),
+        '#default_value' => variable_get('uc_payfast_mode', ''),
+        '#required' => true,
+        '#options' => array(
+          'sandbox' => t('Sandbox'),
+          'live' => t('Live'),
+        ),
+      );
+      
+      return $form;
+  }
+}
+
+// Form to build the submission to Payfast.
+function uc_payfast_form($form, &$form_state, $order) {
+  // The return URL.
+  $return_url = url('cart/payfast/complete', array('absolute' => true));
+  $cancel_url = url('cart/payfast/cancelled', array('absolute' => true));
+  $notify_url = url('cart/payfast/itn', array('absolute' => true));
+    
+  // Check what mode the site is in.
+  if (variable_get('uc_payfast_mode', '') == 'sandbox') {
+    $action_url = 'https://sandbox.payfast.co.za/eng/process';
+  }
+  else {
+    $action_url = 'https://www.payfast.co.za/eng/process';
+  }
+  
+  // Build up a query.
+  $data = array(
+    'merchant_id' => variable_get('uc_payfast_merchant_id', ''),
+    'merchant_key' => variable_get('uc_payfast_merchant_key', ''),
+    
+    'return_url' => url($return_url, array('absolute' => true)),
+    'cancel_url' => url($cancel_url, array('absolute' => true)),
+    'notify_url' => url($notify_url, array('absolute' => true)),
+    
+    'name_first' => $order->billing_first_name,
+    'name_last' => $order->billing_last_name,
+    'email_address' => $order->primary_email,
+    
+    'm_payment_id' => $order->order_id,
+    'amount' => $order->order_total,
+    
+    'item_name' => 'Order from '. variable_get('site_name', ''),
+    'item_description' => 'Order from '. variable_get('site_name', ''),
+  );
+  
+  // The for action.
+  $form['#action'] = $action_url;
+  
+  foreach ($data as $name => $value) {
+    $form[$name] = array('#type' => 'hidden', '#value' => $value);
+  }
+
+  $form['actions'] = array('#type' => 'actions');
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Complete order'),
+  );
+  
+  return $form;
+}
