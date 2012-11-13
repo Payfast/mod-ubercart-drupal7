@@ -26,10 +26,10 @@ define('PF_DEBUG', true);
 
 //// Create user agent string
 // User agent constituents (for cURL)
-define( 'PF_SOFTWARE_NAME', 'Virtuemart' );
-define( 'PF_SOFTWARE_VER', "1.0.0" );
-define( 'PF_MODULE_NAME', 'PayFast-Virtuemart' );
-define( 'PF_MODULE_VER', '1.0.0' );
+define( 'PF_SOFTWARE_NAME', 'Ubercart' );
+define( 'PF_SOFTWARE_VER', "7.x-1.x-dev" );
+define( 'PF_MODULE_NAME', 'PayFast-Ubercart' );
+define( 'PF_MODULE_VER', '1.0.1' );
 
 // Features
 // - PHP
