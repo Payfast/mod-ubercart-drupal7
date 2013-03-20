@@ -1,0 +1,12 @@
+name = Payfast
+description = Process payments using the payfast.co.za payment gateway.
+dependencies[] = uc_payment
+package = Ubercart - payment
+core = 7.x
+
+; Information added by drupal.org packaging script on 2012-07-30
+version = "7.x-1.2"
+core = "7.x"
+project = "ubercart"
+datestamp = "1343653154"
+
