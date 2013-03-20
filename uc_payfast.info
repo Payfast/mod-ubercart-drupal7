@@ -9,4 +9,3 @@ version = "7.x-1.2"
 core = "7.x"
 project = "ubercart"
 datestamp = "1343653154"
-
