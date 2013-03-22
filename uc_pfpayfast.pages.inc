@@ -1,6 +1,6 @@
 <?php
 
-function uc_payfast_complete( $cart_id = 0 )
+function uc_pfpayfast_complete( $cart_id = 0 )
 {
 	global $user;
 
@@ -17,12 +17,12 @@ function uc_payfast_complete( $cart_id = 0 )
 	return $output;
 }
 
-function uc_payfast_itn()
+function uc_pfpayfast_itn()
 {
     
     require_once('payfast_common.inc');
     // Check what mode the site is in. 
-    if (variable_get('uc_payfast_mode', '') == 'sandbox') {
+    if (variable_get('uc_pfpayfast_mode', '') == 'sandbox') {
         $pfHost = 'https://sandbox.payfast.co.za';
     }
     else {
@@ -81,7 +81,7 @@ function uc_payfast_itn()
     pflog( "ITN verified for $itnVerifyRequest\n");
 
 if (false)
-    db_insert('uc_payfast_itn')
+    db_insert('uc_pfpayfast_itn')
       ->fields(array(
         'order_id' => $data['m_payment_id'],
         'txn_id' => $data['pf_payment_id'],
@@ -103,7 +103,7 @@ if (false)
     
     watchdog('payfast', "Order found order_id ({$data['m_payment_id']})");
 
-    if (variable_get('uc_payfast_merchant_id', '') != $data['merchant_id']) {
+    if (variable_get('uc_pfpayfast_merchant_id', '') != $data['merchant_id']) {
 	watchdog( 'payfast', 'ITN received for a different merchant_id | Order Number: ' . $data['m_payment_id'] . ' | Payfast Transaction ID: ' . 
 	$data['pf_payment_id'] );
         return false;
@@ -131,12 +131,13 @@ if (false)
     //Process payment = insert statement into invoice table
     uc_cart_complete_sale($order);
 
+    uc_order_comment_save($order->order_id, 0, t('Payment of @pfcurrency @pfamount received', array('@pfamount' => uc_currency_format($order->order_total, FALSE), '@pfcurrency' => $order->payment_currency)));
     watchdog( 'payfast', "ITN and order successfully processed for order_id {$order->order_id} with order total {$order->order_total}");
     pflog( "ITN sucessfully verified for Payfast Transaction ID: {$data['pf_payment_id']}");
     return true;
 }
 
-function uc_payfast_cancelled()
+function uc_pfpayfast_cancelled()
 {
     return '<p>You cancelled the payment. You may <a href="/cart">try again</a>.</p>';
 }

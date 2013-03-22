@@ -10,51 +10,51 @@
 /**
  * Implementation of hook_menu().
  */
-function uc_payfast_menu() {
+function uc_pfpayfast_menu() {
     
   $items = array();
     
   $items['cart/payfast/complete'] = array(
     'title' => 'Order complete',
-    'page callback' => 'uc_payfast_complete',
-    'access callback' => 'uc_payfast_completion_access',
+    'page callback' => 'uc_pfpayfast_complete',
+    'access callback' => 'uc_pfpayfast_completion_access',
     'type' => MENU_CALLBACK,
-    'file' => 'uc_payfast.pages.inc',
+    'file' => 'uc_pfpayfast.pages.inc',
   );
   
   $items['cart/payfast/cancelled'] = array(
     'title' => 'Order cancelled',
-    'page callback' => 'uc_payfast_cancelled',
+    'page callback' => 'uc_pfpayfast_cancelled',
     'access arguments' => array('registered user can complete payfast order'),
     'type' => MENU_CALLBACK,
-    'file' => 'uc_payfast.pages.inc',
+    'file' => 'uc_pfpayfast.pages.inc',
   );
   
   $items['cart/payfast/itn'] = array(
     'title' => '',
-    'page callback' => 'uc_payfast_itn',
+    'page callback' => 'uc_pfpayfast_itn',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
-    'file' => 'uc_payfast.pages.inc',
+    'file' => 'uc_pfpayfast.pages.inc',
   );
     
   return $items;
 }
 
- function uc_payfast_perm()
+ function uc_pfpayfast_perm()
  {
  	return array('registered user can complete payfast order');
  }
  
 // Make sure anyone can complete their Payfast orders.
-function uc_payfast_completion_access() {
+function uc_pfpayfast_completion_access() {
   return true;
 }
 
 /**
  * Implementation of hook_ucga_display().
  */
-function uc_payfast_ucga_display() {
+function uc_pfpayfast_ucga_display() {
   // Tell UC Google Analytics to display the e-commerce JS on the custom
   // order completion page for this module.
   if (arg(0) == 'cart' && arg(1) == 'payfast' && arg(2) == 'complete') {
@@ -65,14 +65,14 @@ function uc_payfast_ucga_display() {
 /**
  * Implementation of hook_uc_payment_method().
  */
-function uc_payfast_uc_payment_method() {
+function uc_pfpayfast_uc_payment_method() {
   $methods['payfast'] = array(
       'id' => 'payfast',
       'name' => t('Payfast'),
       'title' => t('Payment via Payfast'),
       'desc' => t('Payment via Payfast'),
       'callback' => 'uc_payment_method_payfast',
-      'redirect' => 'uc_payfast_form',
+      'redirect' => 'uc_pfpayfast_form',
       'weight' => 1,
       'checkout' => true,
       'no_gateway' => true,
@@ -84,22 +84,22 @@ function uc_payfast_uc_payment_method() {
 function uc_payment_method_payfast($op, &$arg1) {
   switch ($op) {
     case 'settings':
-      $form['uc_payfast_merchant_id'] = array(
+      $form['uc_pfpayfast_merchant_id'] = array(
         '#type' => 'textfield',
         '#title' => t('Merchant ID'),
-        '#default_value' => variable_get('uc_payfast_merchant_id', ''),
+        '#default_value' => variable_get('uc_pfpayfast_merchant_id', ''),
         '#required' => true,
       );
-      $form['uc_payfast_merchant_key'] = array(
+      $form['uc_pfpayfast_merchant_key'] = array(
         '#type' => 'textfield',
         '#title' => t('Merchant Key'),
-        '#default_value' => variable_get('uc_payfast_merchant_key', ''),
+        '#default_value' => variable_get('uc_pfpayfast_merchant_key', ''),
         '#required' => true,
       );
-      $form['uc_payfast_mode'] = array(
+      $form['uc_pfpayfast_mode'] = array(
         '#type' => 'select',
         '#title' => t('Mode'),
-        '#default_value' => variable_get('uc_payfast_mode', ''),
+        '#default_value' => variable_get('uc_pfpayfast_mode', ''),
         '#required' => true,
         '#options' => array(
           'sandbox' => t('Sandbox'),
@@ -112,14 +112,14 @@ function uc_payment_method_payfast($op, &$arg1) {
 }
 
 // Form to build the submission to Payfast.
-function uc_payfast_form($form, &$form_state, $order) {
+function uc_pfpayfast_form($form, &$form_state, $order) {
   // The return URL.
   $return_url = url('cart/payfast/complete', array('absolute' => true));
   $cancel_url = url('cart/payfast/cancelled', array('absolute' => true));
   $notify_url = url('cart/payfast/itn', array('absolute' => true));
     
   // Check what mode the site is in.
-  if (variable_get('uc_payfast_mode', '') == 'sandbox') {
+  if (variable_get('uc_pfpayfast_mode', '') == 'sandbox') {
     $action_url = 'https://sandbox.payfast.co.za/eng/process';
   }
   else {
@@ -128,8 +128,8 @@ function uc_payfast_form($form, &$form_state, $order) {
   
   // Build up a query.
   $data = array(
-    'merchant_id' => variable_get('uc_payfast_merchant_id', ''),
-    'merchant_key' => variable_get('uc_payfast_merchant_key', ''),
+    'merchant_id' => variable_get('uc_pfpayfast_merchant_id', ''),
+    'merchant_key' => variable_get('uc_pfpayfast_merchant_key', ''),
     
     'return_url' => url($return_url, array('absolute' => true)),
     'cancel_url' => url($cancel_url, array('absolute' => true)),

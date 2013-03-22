@@ -8,10 +8,10 @@
 /**
  * Implements hook_schema().
  */
-function uc_payfast_schema() {
+function uc_pfpayfast_schema() {
   $schema = array();
 
-    $schema['uc_payfast_itn'] = array(
+    $schema['uc_pfpayfast_itn'] = array(
     'description' => 'Stores processed ITNs.',
     'fields' => array(
       'itn_id' => array(
