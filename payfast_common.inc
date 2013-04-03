@@ -29,7 +29,7 @@ define('PF_DEBUG', true);
 define( 'PF_SOFTWARE_NAME', 'Ubercart' );
 define( 'PF_SOFTWARE_VER', "7.x-1.2" );
 define( 'PF_MODULE_NAME', 'PayFast-Ubercart' );
-define( 'PF_MODULE_VER', '1.0.3' );
+define( 'PF_MODULE_VER', '1.0.4' );
 
 // Features
 // - PHP
