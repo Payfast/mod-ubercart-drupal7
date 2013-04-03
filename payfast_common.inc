@@ -177,13 +177,19 @@ function pfValidSignature( $pfData = null, &$pfParamString = null )
  */
 function pfValidData( $pfHost = 'www.payfast.co.za', $pfParamString = '', $curlUrl='' )
 {
+    pflog ( 'beginning of function'.__FUNCTION__ );
+    pflog ( '');
     pflog( 'Host = '. $pfHost );
     pflog( 'Params = '. $pfParamString );
-    pflog( 'Curl URL = '. $curlUrl );
+    pflog( 'URL = '. $curlUrl );
+    pflog ( '');
 
     // Use cURL (if available)
     if( defined( 'PF_CURL' ) )
     {
+
+    	pflog( 'using CURL ['. $curlUrl.']' );
+	
         // Create default cURL object
         $ch = curl_init();
     
@@ -196,18 +202,26 @@ function pfValidData( $pfHost = 'www.payfast.co.za', $pfParamString = '', $curlU
         curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
         
         // Standard settings
-        curl_setopt( $ch, CURLOPT_URL, $curlUrl );
+        curl_setopt( $ch, CURLOPT_URL, "$curlUrl" );
         curl_setopt( $ch, CURLOPT_POST, true );
         curl_setopt( $ch, CURLOPT_POSTFIELDS, $pfParamString );
         curl_setopt( $ch, CURLOPT_TIMEOUT, PF_TIMEOUT );
     
         // Execute CURL
         $response = curl_exec( $ch );
+
+	if (curl_errno($ch)) {
+           pflog('CURL Error number '.curl_errno($ch));
+	   return false;
+        }
+
         curl_close( $ch );
     }
     // Use fsockopen
     else
     {
+	$pfHost = preg_replace ('%^https://%', '', $pfHost);
+    	pflog( "using fsockopen (ssl://{$pfHost}, 443, errno, errstr, {PF_TIMEOUT})" );
         // Variable initialization
         $header = '';
         $res = '';
@@ -221,7 +235,10 @@ function pfValidData( $pfHost = 'www.payfast.co.za', $pfParamString = '', $curlU
         $header .= "Content-Length: " . strlen( $pfParamString ) . "\r\n\r\n";
  
         // Connect to server
-        $socket = fsockopen( 'ssl://'. $pfHost, 443, $errno, $errstr, PF_TIMEOUT );
+        if (! $socket = fsockopen( 'ssl://'. $pfHost, 443, $errno, $errstr, PF_TIMEOUT )) {
+		pflog ("fsockopen[$pfHost] errno[$errno] errstr[$errstr] returned FALSE");
+		return false;
+	}
  
         // Send command to server
         fputs( $socket, $header . $pfParamString );
@@ -254,12 +271,10 @@ function pfValidData( $pfHost = 'www.payfast.co.za', $pfParamString = '', $curlU
 
     if( strcasecmp( $verifyResult, 'VALID' ) == 0 )
     {
-        pflog('curl returning : true');
         return( true );
     }
     else
     {
-        pflog('curl returning : false');
         return( false );
     }
 }
