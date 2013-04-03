@@ -177,7 +177,7 @@ function pfValidSignature( $pfData = null, &$pfParamString = null )
  */
 function pfValidData( $pfHost = 'www.payfast.co.za', $pfParamString = '', $curlUrl='' )
 {
-    pflog ( 'beginning of function'.__FUNCTION__ );
+    pflog ( 'beginning of function '.__FUNCTION__ );
     pflog ( '');
     pflog( 'Host = '. $pfHost );
     pflog( 'Params = '. $pfParamString );
@@ -214,7 +214,6 @@ function pfValidData( $pfHost = 'www.payfast.co.za', $pfParamString = '', $curlU
            pflog('CURL Error number '.curl_errno($ch));
 	   return false;
         }
-
         curl_close( $ch );
     }
     // Use fsockopen

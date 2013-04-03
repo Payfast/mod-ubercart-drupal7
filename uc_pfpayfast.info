@@ -3,6 +3,6 @@ description = Processes payments using www.payfast.co.za.
 dependencies[] = uc_payment
 package = Ubercart - payment
 core = 7.x
-version = "1.0.3"
+version = "1.0.4"
 project = "ubercart"
 datestamp = "1363942289"
