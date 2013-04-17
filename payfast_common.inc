@@ -29,7 +29,9 @@ define('PF_DEBUG', true);
 define( 'PF_SOFTWARE_NAME', 'Ubercart' );
 define( 'PF_SOFTWARE_VER', "7.x-1.2" );
 define( 'PF_MODULE_NAME', 'PayFast-Ubercart' );
-define( 'PF_MODULE_VER', '1.0.4' );
+define( 'PF_MODULE_VER', '1.0.5' );
+
+//define( 'PF_NEVER_USE_CURL', 1 );
 
 // Features
 // - PHP
@@ -185,7 +187,7 @@ function pfValidData( $pfHost = 'www.payfast.co.za', $pfParamString = '', $curlU
     pflog ( '');
 
     // Use cURL (if available)
-    if( defined( 'PF_CURL' ) )
+    if( defined( 'PF_CURL' ) && ! defined('PF_NEVER_USE_CURL') )
     {
 
     	pflog( 'using CURL ['. $curlUrl.']' );
@@ -209,6 +211,7 @@ function pfValidData( $pfHost = 'www.payfast.co.za', $pfParamString = '', $curlU
     
         // Execute CURL
         $response = curl_exec( $ch );
+        pflog (print_r(curl_getinfo($ch), true));
 
 	if (curl_errno($ch)) {
            pflog('CURL Error number '.curl_errno($ch));
