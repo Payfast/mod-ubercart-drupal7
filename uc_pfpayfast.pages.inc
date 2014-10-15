@@ -110,7 +110,7 @@ if (false)
 	}
 	
 	//check that the amount paid is the same as the order total
-    if ( ( int )$data[amount_gross] != ( int )$order->order_total )
+    if ( round( $data['amount_gross'], 2 ) != round( $order->order_total, 2 ) )
     {
         watchdog( 'payfast', 'The amount paid <> the order amount. | Order Number: ' . $data['m_payment_id'] . ' | Payfast Transaction ID: ' . 
 	$data['pf_payment_id'] );

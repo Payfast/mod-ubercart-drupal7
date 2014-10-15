@@ -140,7 +140,7 @@ function uc_pfpayfast_form($form, &$form_state, $order) {
     'email_address' => $order->primary_email,
     
     'm_payment_id' => $order->order_id,
-    'amount' => $order->order_total,
+    'amount' => round( $order->order_total, 2 ),
     
     'item_name' => 'Order from '. variable_get('site_name', ''),
     'item_description' => 'Order from '. variable_get('site_name', ''),
