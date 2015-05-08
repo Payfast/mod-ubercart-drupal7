@@ -19,7 +19,7 @@ function uc_pfpayfast_menu() {
     'page callback' => 'uc_pfpayfast_complete',
     'access callback' => 'uc_pfpayfast_completion_access',
     'type' => MENU_CALLBACK,
-    'file' => 'uc_pfpayfast.pages.inc',
+    'file' => 'uc_pfpayfast.co.zas.inc',
   );
   
   $items['cart/payfast/cancelled'] = array(
@@ -27,7 +27,7 @@ function uc_pfpayfast_menu() {
     'page callback' => 'uc_pfpayfast_cancelled',
     'access arguments' => array('registered user can complete payfast order'),
     'type' => MENU_CALLBACK,
-    'file' => 'uc_pfpayfast.pages.inc',
+    'file' => 'uc_pfpayfast.co.zas.inc',
   );
   
   $items['cart/payfast/itn'] = array(
@@ -35,7 +35,7 @@ function uc_pfpayfast_menu() {
     'page callback' => 'uc_pfpayfast_itn',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
-    'file' => 'uc_pfpayfast.pages.inc',
+    'file' => 'uc_pfpayfast.co.zas.inc',
   );
     
   return $items;
@@ -96,6 +96,12 @@ function uc_payment_method_payfast($op, &$arg1) {
         '#default_value' => variable_get('uc_pfpayfast_merchant_key', ''),
         '#required' => true,
       );
+            $form['uc_pfpayfast_passphrase'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Passphrase'),
+        '#default_value' => variable_get('uc_pfpayfast_passphrase', ''),
+        '#required' => false,
+      );
       $form['uc_pfpayfast_mode'] = array(
         '#type' => 'select',
         '#title' => t('Mode'),
@@ -145,6 +151,25 @@ function uc_pfpayfast_form($form, &$form_state, $order) {
     'item_name' => 'Order from '. variable_get('site_name', ''),
     'item_description' => 'Order from '. variable_get('site_name', ''),
   );
+
+          $pfOutput = '';
+        // Create output string
+        foreach( $data as $key => $val )
+        {
+            $pfOutput .= $key .'='. urlencode( trim( $val ) ) .'&';
+        }
+    
+        $passPhrase = variable_get('uc_pfpayfast_passphrase', '');
+        if( empty( $passPhrase ) ||  variable_get('uc_pfpayfast_mode', '') == 'sandbox' ) 
+        {
+            $pfOutput = substr( $pfOutput, 0, -1 );
+        }
+        else
+        {
+            $pfOutput = $pfOutput."passphrase=".urlencode( $passPhrase );
+        }
+
+        $data['signature'] = md5( $pfOutput );
   
   // The for action.
   $form['#action'] = $action_url;
