@@ -170,6 +170,7 @@ function uc_pfpayfast_form($form, &$form_state, $order) {
         }
 
         $data['signature'] = md5( $pfOutput );
+        $data['user_agent'] = 'UberCart 7.x-1.2';
   
   // The for action.
   $form['#action'] = $action_url;
